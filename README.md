@@ -5,6 +5,8 @@ into nested groups, then jump into one (and open it in your editor) from an
 interactive browser. Written in Go — a single static binary, no runtime to
 install.
 
+![pn demo](demo/demo.gif)
+
 ## Features
 
 - **Interactive browser** — arrow-key through nested groups and projects, drill
