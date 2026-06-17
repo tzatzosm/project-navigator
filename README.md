@@ -30,12 +30,6 @@ Downloads the right binary for your OS/arch from the latest GitHub Release,
 verifies its checksum, and installs it. Override with `PN_VERSION` or
 `PN_INSTALL_DIR`. No Go required.
 
-### Homebrew (personal tap)
-
-```bash
-brew install tzatzosm/tap/project-navigator
-```
-
 ### go install
 
 ```bash
@@ -113,21 +107,18 @@ make build        # ./pn
 The interactive UI uses [huh](https://github.com/charmbracelet/huh); styled
 output (tree, table, colors) uses [lipgloss](https://github.com/charmbracelet/lipgloss).
 
-## Publishing a Homebrew release
+## Releasing
 
-The formula (`Formula/project-navigator.rb`) is a simple Go build — no vendored
-dependencies. To cut a release:
+Releases are fully automated. Push a `vX.Y.Z` tag and the
+[`release`](.github/workflows/release.yml) workflow runs
+[GoReleaser](https://goreleaser.com) to cross-compile every platform and publish
+the binaries + checksums to a GitHub Release:
 
-1. Tag and push:
-   ```bash
-   git tag v0.2.0 && git push origin v0.2.0
-   ```
-2. Fill the tarball `sha256` into the formula:
-   ```bash
-   curl -sL https://github.com/tzatzosm/project-navigator/archive/refs/tags/v0.2.0.tar.gz | shasum -a 256
-   ```
-3. Copy the formula into the `tzatzosm/homebrew-tap` repo under
-   `Formula/project-navigator.rb` and push.
+```bash
+git tag v0.3.0 && git push origin v0.3.0
+```
+
+The `curl | bash` installer above always points at the latest release.
 
 ## License
 

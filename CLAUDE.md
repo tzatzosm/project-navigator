@@ -13,8 +13,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - `config.go` — the on-disk model (`Config`/`Group`/`Project`/`Editor`), OS-aware config paths, load/save, legacy migration, and the `container` abstraction.
   - `commands.go` — one function per subcommand (`cmdAdd`/`cmdOpen`/`cmdGroups`/`cmdConfig`/`cmdEditors`/`cmdList`).
   - `ui.go` — `huh` prompt wrappers and `lipgloss` styled output (table + tree).
-- `Formula/project-navigator.rb` — Homebrew formula (Go build).
 - `Makefile` — `build` / `install` (`go install`) / `shell-init` / `test`.
+- `.goreleaser.yaml` + `.github/workflows/release.yml` — on a `v*` tag, cross-compile and publish binaries + checksums to a GitHub Release.
+- `install.sh` — `curl | bash` installer that downloads the matching release binary.
 
 ## Build / test / run
 
@@ -42,6 +43,6 @@ There is no unit-test suite yet; `make test` is vet + build. The interactive pro
 
 `github.com/charmbracelet/huh` (all interactive prompts) and `github.com/charmbracelet/lipgloss` + its `table`/`tree` subpackages (all styled output). Keep new deps minimal; the value proposition is a small self-contained binary.
 
-## Homebrew formula
+## Distribution
 
-`Formula/project-navigator.rb` is a `depends_on "go" => :build` formula that runs `go build … ./cmd/pn` — far simpler than the old Python virtualenv form (no vendored resources). The `url` is a GitHub release tarball; its `sha256` must be filled in after tagging. The formula must also be copied into the `tzatzosm/homebrew-tap` repo for `brew install tzatzosm/tap/project-navigator` to work. Validate with `brew style Formula/project-navigator.rb`.
+Prebuilt binaries only — there is no Homebrew formula. A `v*` tag triggers GoReleaser (`.goreleaser.yaml`) to publish per-platform archives (`pn_<version>_<os>_<arch>`) and `checksums.txt` to a GitHub Release; `install.sh` resolves the latest release, verifies the checksum, and installs the binary. The archive name template in `.goreleaser.yaml` and the asset name built in `install.sh` must stay in sync.
