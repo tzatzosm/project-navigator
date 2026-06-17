@@ -8,6 +8,7 @@
 #   PN_VERSION=v0.2.0   install a specific tag (default: latest)
 #   PN_INSTALL_DIR=...  install location (default: /usr/local/bin if writable,
 #                       else ~/.local/bin)
+#   PN_NO_WRAPPER=1     do not add the pn() shell wrapper to your shell rc
 set -euo pipefail
 
 REPO="tzatzosm/project-navigator"
@@ -116,16 +117,39 @@ case ":${PATH}:" in
   *) info "Note: ${INSTALL_DIR} is not on your PATH. Add: export PATH=\"${INSTALL_DIR}:\$PATH\"" ;;
 esac
 
-cat >&2 <<'EOS'
+# --- Shell wrapper (cd integration) ------------------------------------------
+# `pn` prints `cd <path>`; a shell function must eval it. We append that wrapper
+# to the user's shell rc unless it's already there (set PN_NO_WRAPPER=1 to skip).
+# shellcheck disable=SC2016  # the wrapper body must stay literal in the rc file
+WRAPPER='
+# project-navigator: let `pn` change the shell directory
+pn() {
+  result=$(command pn "$@")
+  if echo "$result" | grep -q "^cd "; then
+    eval "$result"
+  else
+    echo "$result"
+  fi
+}'
 
-To enable `cd` into projects, add this wrapper to your ~/.zshrc or ~/.bashrc:
+# Marker used for the idempotency check.
+WRAPPER_MARK='command pn "$@"'
 
-  pn() {
-    result=$(command pn "$@")
-    if echo "$result" | grep -q "^cd "; then
-      eval "$result"
-    else
-      echo "$result"
-    fi
-  }
-EOS
+rc=""
+case "$(basename "${SHELL:-}")" in
+  zsh) rc="${ZDOTDIR:-$HOME}/.zshrc" ;;
+  bash) rc="${HOME}/.bashrc" ;;
+esac
+
+if [ "${PN_NO_WRAPPER:-0}" = "1" ]; then
+  : # user opted out
+elif [ -z "$rc" ]; then
+  info ""
+  info "Add this wrapper to your shell rc to enable 'cd' into projects:"
+  printf '%s\n' "$WRAPPER" >&2
+elif [ -f "$rc" ] && grep -qF "$WRAPPER_MARK" "$rc"; then
+  info "Shell wrapper already present in ${rc}."
+else
+  printf '%s\n' "$WRAPPER" >>"$rc"
+  info "Added the pn() shell wrapper to ${rc}. Reload your shell: exec \$SHELL"
+fi

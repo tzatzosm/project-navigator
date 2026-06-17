@@ -61,8 +61,10 @@ make install      # go install into your Go bin dir
 ### Shell integration (required for `cd`)
 
 A process can't change your shell's directory, so `pn` prints a `cd <path>` line
-that a small wrapper evaluates. Add this to your `~/.bashrc` / `~/.zshrc`
-(or run `make shell-init`):
+that a small wrapper evaluates. **The `curl | bash` installer adds this wrapper
+to your `~/.zshrc` / `~/.bashrc` automatically** (idempotently; set
+`PN_NO_WRAPPER=1` to skip). For other install methods, add it yourself (or run
+`make shell-init`):
 
 ```bash
 pn() {
