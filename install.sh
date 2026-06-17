@@ -62,21 +62,27 @@ info "Downloading ${ASSET} (${TAG})…"
 curl -fsSL "${BASE}/${ASSET}" -o "${tmp}/${ASSET}" \
   || err "download failed: ${BASE}/${ASSET}"
 
-# --- Verify checksum (best effort) -------------------------------------------
-if curl -fsSL "${BASE}/checksums.txt" -o "${tmp}/checksums.txt" 2>/dev/null; then
-  sum=""
-  if command -v sha256sum >/dev/null 2>&1; then
-    sum="sha256sum"
-  elif command -v shasum >/dev/null 2>&1; then
-    sum="shasum -a 256"
-  fi
-  if [ -n "$sum" ]; then
-    if (cd "$tmp" && grep " ${ASSET}\$" checksums.txt | $sum -c -) >/dev/null 2>&1; then
-      info "Checksum verified."
-    else
-      err "checksum verification failed for ${ASSET}"
-    fi
-  fi
+# --- Verify checksum (required) ----------------------------------------------
+if command -v sha256sum >/dev/null 2>&1; then
+  sum="sha256sum"
+elif command -v shasum >/dev/null 2>&1; then
+  sum="shasum -a 256"
+else
+  err "no SHA-256 tool (sha256sum or shasum) found — cannot verify the download"
+fi
+
+curl -fsSL "${BASE}/checksums.txt" -o "${tmp}/checksums.txt" \
+  || err "could not download checksums.txt — refusing to install unverified binary"
+
+# Ensure there is actually an entry for our asset (an empty match would make
+# `$sum -c` succeed on zero lines and falsely report success).
+grep " ${ASSET}\$" "${tmp}/checksums.txt" >/dev/null \
+  || err "no checksum entry for ${ASSET} in checksums.txt"
+
+if (cd "$tmp" && grep " ${ASSET}\$" checksums.txt | $sum -c -) >/dev/null 2>&1; then
+  info "Checksum verified."
+else
+  err "checksum verification failed for ${ASSET}"
 fi
 
 # --- Extract -----------------------------------------------------------------
