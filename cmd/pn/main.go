@@ -26,6 +26,9 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+// version is overridden at build time via -ldflags "-X main.version=…".
+var version = "dev"
+
 func main() {
 	// Point lipgloss colour detection at stderr (where our output goes), so
 	// colours survive even when stdout is captured by the shell wrapper.
@@ -41,6 +44,9 @@ func main() {
 	switch command {
 	case "-h", "--help", "help":
 		usage()
+		return
+	case "-v", "--version", "version":
+		fmt.Println("pn " + version)
 		return
 	}
 

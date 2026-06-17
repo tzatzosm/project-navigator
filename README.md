@@ -5,7 +5,30 @@ into nested groups, then jump into one (and open it in your editor) from an
 interactive browser. Written in Go — a single static binary, no runtime to
 install.
 
+## Features
+
+- **Interactive browser** — arrow-key through nested groups and projects, drill
+  in and out with `← Back`.
+- **`cd` into projects** — selecting a project changes your shell's directory
+  (via a tiny shell wrapper, see below).
+- **Editor integration** — open a project in your editor with one keystroke;
+  per-project overrides fall back to a global default.
+- **Nested groups** — arbitrarily deep group hierarchy, rendered as a tree.
+- **OS-native config** — JSON in the standard config dir for your platform.
+- **Resilient** — missing config is created on first run; projects whose path
+  no longer exists are flagged with `⚠️` instead of crashing.
+
 ## Install
+
+### Quick install (prebuilt binary)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/tzatzosm/project-navigator/main/install.sh | bash
+```
+
+Downloads the right binary for your OS/arch from the latest GitHub Release,
+verifies its checksum, and installs it. Override with `PN_VERSION` or
+`PN_INSTALL_DIR`. No Go required.
 
 ### Homebrew (personal tap)
 
@@ -60,6 +83,15 @@ pn list         # print all projects as a tree
 
 Running `pn` with no arguments opens the browser.
 
+### Example
+
+```bash
+cd ~/work/api
+pn add                 # name it, drop it in a group, pick an editor
+pn list                # see everything as a tree
+pn                     # open the browser, pick "API Service", hit enter → you're cd'd in
+```
+
 ## Config
 
 Stored as `config.json` in your OS config directory:
@@ -96,3 +128,7 @@ dependencies. To cut a release:
    ```
 3. Copy the formula into the `tzatzosm/homebrew-tap` repo under
    `Formula/project-navigator.rb` and push.
+
+## License
+
+[MIT](LICENSE) © Marsel Tzatzos

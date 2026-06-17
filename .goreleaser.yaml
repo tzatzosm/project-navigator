@@ -1,0 +1,57 @@
+# GoReleaser config — cross-compiles pn and publishes a GitHub Release on tag.
+# Validate locally:  goreleaser check
+# Dry run:           goreleaser release --snapshot --clean
+version: 2
+
+project_name: project-navigator
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: pn
+    main: ./cmd/pn
+    binary: pn
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+
+archives:
+  - id: pn
+    # Matches install.sh: pn_<version>_<os>_<arch>.tar.gz
+    name_template: "pn_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files:
+      - LICENSE
+      - README.md
+
+checksum:
+  name_template: "checksums.txt"
+
+release:
+  github:
+    owner: tzatzosm
+    name: project-navigator
+  draft: false
+  prerelease: auto
+
+changelog:
+  use: github
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
