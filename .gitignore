@@ -1,0 +1,11 @@
+# Built binary
+/pn
+/project-navigator
+
+# Go
+*.test
+*.out
+/dist/
+
+# OS / editor
+.DS_Store
