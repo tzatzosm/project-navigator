@@ -26,9 +26,22 @@ install.
 curl -fsSL https://raw.githubusercontent.com/tzatzosm/project-navigator/main/install.sh | bash
 ```
 
-Downloads the right binary for your OS/arch from the latest GitHub Release,
-verifies its checksum, and installs it. Override with `PN_VERSION` or
-`PN_INSTALL_DIR`. No Go required.
+Downloads the right binary for your OS/arch from GitHub Releases, verifies its
+checksum, and installs it. No Go required.
+
+**Where it installs:** `PN_INSTALL_DIR` if set, otherwise `/usr/local/bin` when
+that directory is writable (the installer uses `sudo` if needed), falling back
+to `~/.local/bin`. If the chosen directory isn't on your `PATH`, the installer
+prints the `export PATH=…` line to add.
+
+**Which version:** `PN_VERSION` if set (e.g. `v0.2.0`), otherwise the latest
+release (`latest`).
+
+```bash
+# Examples — note the variables go on the `bash` side of the pipe, not `curl`
+curl -fsSL https://raw.githubusercontent.com/tzatzosm/project-navigator/main/install.sh | PN_VERSION=v0.2.0 bash
+curl -fsSL https://raw.githubusercontent.com/tzatzosm/project-navigator/main/install.sh | PN_INSTALL_DIR="$HOME/bin" bash
+```
 
 ### go install
 
